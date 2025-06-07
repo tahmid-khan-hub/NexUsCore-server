@@ -32,7 +32,11 @@ async function run() {
 
 
     // api method
-    
+    app.post('/courses', async(req, res) =>{
+      const newCourse = req.body;
+      const result = await CoursesCollection.insertOne(newCourse);
+      res.send(result);
+    })
 
 
     await client.db("admin").command({ ping: 1 });
