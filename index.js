@@ -25,7 +25,7 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    // await client.connect();
+    await client.connect();
 
 
     const CoursesCollection = client.db("course-management").collection("courses");
@@ -35,6 +35,11 @@ async function run() {
     app.post('/courses', async(req, res) =>{
       const newCourse = req.body;
       const result = await CoursesCollection.insertOne(newCourse);
+      res.send(result);
+    })
+
+    app.get('/courses', async(req, res) =>{
+      const result = await CoursesCollection.find().toArray();
       res.send(result);
     })
 
