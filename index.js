@@ -29,9 +29,10 @@ async function run() {
 
 
     const CoursesCollection = client.db("course-management").collection("courses");
+    const UsersEnrolledCourses = client.db("course-management").collection("userCourses")
 
 
-    // api method
+    // api method for course collections
     app.post('/courses', async(req, res) =>{
       const newCourse = req.body;
       const result = await CoursesCollection.insertOne(newCourse);
@@ -60,6 +61,20 @@ async function run() {
       const query = {_id: new ObjectId(id)};
       const result = await CoursesCollection.deleteOne(query);
       res.send(result);
+    })
+
+
+    // api method for UsersEnrolled courses
+    app.post('/userCourses', async(req, res) =>{
+      const userCourse = req.body;
+      const result = await UsersEnrolledCourses.insertOne(userCourse);
+      res.send(result);
+    })
+
+    app.get('/userCourses/check', async(req, res) =>{
+      const {courseId, email} = req.query;
+      const result = await UsersEnrolledCourses.findOne({courseId, email});
+      res.json({ enrolled: !!result }); 
     })
 
     await client.db("admin").command({ ping: 1 });
