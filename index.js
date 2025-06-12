@@ -71,6 +71,11 @@ async function run() {
       res.send(result);
     })
 
+    app.get('/userCourses', async(req, res) =>{
+      const result = await UsersEnrolledCourses.find().toArray();
+      res.send(result);
+    })
+
     app.get('/userCourses/check', async(req, res) =>{
       const {courseId, email} = req.query;
       const result = await UsersEnrolledCourses.findOne({courseId, email});
