@@ -83,7 +83,7 @@ async function run() {
       res.json({ enrolled: !!result });
     });
 
-    // enrollment
+    // enrollment add and remove
     app.patch("/courses/:id", async (req, res) => {
       const id = req.params.id;
       const { enrolled } = req.body;
@@ -94,6 +94,28 @@ async function run() {
       };
 
       const result = await CoursesCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
+
+    app.patch("/courses/:id/unenroll", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $inc: { enrolled: -1 },
+      };
+      const result = await CoursesCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
+
+
+
+
+    app.delete("/userCourses/:email/:courseId", async (req, res) => {
+      const { email, courseId } = req.params;
+      const result = await UsersEnrolledCourses.deleteOne({
+        email: email,
+        courseId: courseId,
+      });
       res.send(result);
     });
 
