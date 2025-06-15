@@ -68,8 +68,12 @@ async function run() {
     // api method for UsersEnrolled courses
     app.post("/userCourses", async (req, res) => {
       const userCourse = req.body;
-      const result = await UsersEnrolledCourses.insertOne(userCourse);
-      res.send(result);
+      const { email, courseId } = userCourse;
+       const enrolledCount = await UsersEnrolledCourses.countDocuments({ email });
+       if(enrolledCount < 3){
+          const result = await UsersEnrolledCourses.insertOne(userCourse);
+          res.send(result);
+       }
     });
 
     app.get("/userCourses", async (req, res) => {
@@ -105,6 +109,13 @@ async function run() {
       };
       const result = await CoursesCollection.updateOne(filter, updateDoc);
       res.send(result);
+    });
+
+
+    app.get("/userCoursesCount", async (req, res) => {
+      const { email } = req.query;
+      const count = await UsersEnrolledCourses.countDocuments({ email });
+      res.send({ count });
     });
 
 
