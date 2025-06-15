@@ -1,5 +1,7 @@
 const express = require("express");
 const cors = require("cors");
+const admin = require("firebase-admin");
+const serviceAccount = require("./firebase-admin-service-key.json");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 const app = express();
@@ -19,6 +21,37 @@ const client = new MongoClient(uri, {
   },
 });
 
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
+
+const verfiyFirebaseToken = async(req, res, next) =>{
+  const AuthHeader = req.headers?.authorization;
+  if(!AuthHeader || !AuthHeader.startsWith('Bearer ')){
+    return res.status(401).send({message: 'unauthorized access'})
+  }
+  const token = AuthHeader.split(' ')[1];
+
+  try{
+    const decoded = await admin.auth().verifyIdToken(token)
+    console.log('decoded token---------------------', decoded);
+    req.decoded = decoded;
+    next()
+  }
+  catch(error){
+    return res.status(401).send({message: 'unauthorized access'})
+  }
+}
+
+const verifyTokenEmail = (req, res, next) =>{
+  if(req.query.email !== req.decoded.email){
+    return res.status(403).send({message: 'forbidden access'})
+  }
+  next()
+}
+
+
 async function run() {
   try {
     await client.connect();
@@ -31,8 +64,9 @@ async function run() {
       .collection("userCourses");
 
     // api method for course collections
-    app.post("/courses", async (req, res) => {
+    app.post("/courses", verfiyFirebaseToken, verifyTokenEmail,  async (req, res) => {
       const newCourse = req.body;
+      const email = req.query.email;
       const result = await CoursesCollection.insertOne(newCourse);
       res.send(result);
     });
@@ -42,7 +76,7 @@ async function run() {
       res.send(result);
     });
 
-    app.put("/courses/:id", async (req, res) => {
+    app.put("/courses/:id", verfiyFirebaseToken, verifyTokenEmail, async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
       const options = { upsert: true };
@@ -58,7 +92,7 @@ async function run() {
       res.send(result);
     });
 
-    app.delete("/courses/:id", async (req, res) => {
+    app.delete("/courses/:id", verfiyFirebaseToken, verifyTokenEmail, async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await CoursesCollection.deleteOne(query);
@@ -101,7 +135,7 @@ async function run() {
       res.send(result);
     });
 
-    app.patch("/courses/:id/unenroll", async (req, res) => {
+    app.patch("/courses/:id/unenroll", verfiyFirebaseToken, verifyTokenEmail, async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
       const updateDoc = {
@@ -130,7 +164,7 @@ async function run() {
       res.send(result);
     });
 
-    app.delete("/userCourses/:id", async (req, res) => {
+    app.delete("/userCourses/:id", verfiyFirebaseToken, verifyTokenEmail, async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await UsersEnrolledCourses.deleteOne(query);
