@@ -1,18 +1,18 @@
 const express = require("express");
 const cors = require("cors");
 const admin = require("firebase-admin");
-
+require("dotenv").config();
 const decoded = Buffer.from(process.env.FB_SERVICE_KEY, 'base64').toString('utf8')
 const serviceAccount = JSON.parse(decoded)
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
-require("dotenv").config();
+
 const app = express();
 const port = 3000;
 
 // middleware
 app.use(
   cors({
-    origin: "https://effervescent-centaur-5a4b64.netlify.app",
+    origin: "https://cheery-vacherin-a489f2.netlify.app",
     credentials: true,
   })
 );
@@ -64,10 +64,10 @@ async function run() {
     // await client.connect();
 
     const CoursesCollection = client
-      .db("course-management")
+      .db("CourseDB")
       .collection("courses");
     const UsersEnrolledCourses = client
-      .db("course-management")
+      .db("CourseDB")
       .collection("userCourses");
 
     // api method for course collections
@@ -178,10 +178,10 @@ async function run() {
       res.send(result);
     });
 
-    // await client.db("admin").command({ ping: 1 });
-    // console.log(
-    //   "Pinged your deployment. You successfully connected to MongoDB!"
-    // );
+    await client.db("admin").command({ ping: 1 });
+    console.log(
+      "Pinged your deployment. You successfully connected to MongoDB!"
+    );
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
