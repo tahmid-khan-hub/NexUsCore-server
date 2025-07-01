@@ -10,12 +10,24 @@ const app = express();
 const port = 3000;
 
 // middleware
+<<<<<<< HEAD
+// middleware
 app.use(
   cors({
-    origin: "https://cheery-vacherin-a489f2.netlify.app",
+    origin: ["https://cheery-vacherin-a489f2.netlify.app", "http://localhost:5173"],
     credentials: true,
   })
 );
+
+=======
+// app.use(
+//   cors({
+//     origin: "http://localhost:5173/",
+//     credentials: true,
+//   })
+// );
+app.use(cors())
+>>>>>>> 2f2376169efc80009b4ec7b5026fb03ccaea201d
 app.use(express.json());
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.zc7c13h.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
