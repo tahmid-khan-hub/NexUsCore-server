@@ -12,7 +12,7 @@ const port = 3000;
 // middleware
 app.use(
   cors({
-    origin: ["https://cheery-vacherin-a489f2.netlify.app", "http://localhost:5173"],
+    origin: ["https://dancing-paprenjak-69a983.netlify.app", "http://localhost:5173"],
     credentials: true,
   })
 );
