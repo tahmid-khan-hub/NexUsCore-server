@@ -69,6 +69,22 @@ async function run() {
     const UsersEnrolledCourses = client
       .db("CourseDB")
       .collection("userCourses");
+    const UsersCollection = client
+      .db("CourseDB")
+      .collection("users")
+
+
+    // users
+    app.post("/users", async(req, res) => {
+      const user = req.body;
+
+      const existingUser = await UsersCollection.findOne({ email: user.email });
+      if (existingUser) {
+        return res.status(409).json({ message: "User already exists" });
+      }
+      const result = await UsersCollection.insertOne(user);
+      res.send(result);
+    })
 
     // api method for course collections
     app.post("/courses", verfiyFirebaseToken, verifyTokenEmail,  async (req, res) => {
