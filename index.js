@@ -75,10 +75,18 @@ async function run() {
 
 
     // users
-    app.get("/users", async(req, res) => {
-      const result = await UsersCollection.find().toArray();
-      res.send(result);
-    })
+    app.get("/users/email/:email", async (req, res) => {
+      const email = req.params.email;
+      try {
+        const user = await UsersCollection.findOne({ email: email });
+        if (!user) {
+          return res.status(404).json({ message: "User not found" });
+        }
+        res.json(user);
+      } catch (err) {
+        res.status(500).json({ message: "Server error", error: err });
+      }
+    });
 
     app.post("/users", async(req, res) => {
       const user = req.body;
