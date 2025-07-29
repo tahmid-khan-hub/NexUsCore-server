@@ -88,6 +88,12 @@ async function run() {
       }
     });
 
+    app.get("/users/:email", async (req, res) => {
+      const email = req.params.email;
+      const user = await usersCollection.findOne({ email });
+      res.send(user);
+    });
+
     app.post("/users", async(req, res) => {
       const user = req.body;
 
@@ -96,6 +102,19 @@ async function run() {
         return res.status(409).json({ message: "User already exists" });
       }
       const result = await UsersCollection.insertOne(user);
+      res.send(result);
+    })
+
+    app.patch("/users/update/:email", async(req, res) => {
+      const { email } = req.params;
+      const { name, photoURL } = req.body;
+      const result = await UsersCollection.updateOne({email}, {
+        $set: {
+          name,
+          photoURL,
+          updatedAt: new Date(),
+        },
+      })
       res.send(result);
     })
 
