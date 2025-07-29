@@ -90,7 +90,7 @@ async function run() {
 
     app.get("/users/:email", async (req, res) => {
       const email = req.params.email;
-      const user = await usersCollection.findOne({ email });
+      const user = await UsersCollection.findOne({ email: email });
       res.send(user);
     });
 
@@ -105,17 +105,26 @@ async function run() {
       res.send(result);
     })
 
-    app.patch("/users/update/:email", async(req, res) => {
-      const { email } = req.params;
+    app.put("/users/update/:email", async(req, res) => {
+      const email = req.params.email;
       const { name, photoURL } = req.body;
-      const result = await UsersCollection.updateOne({email}, {
-        $set: {
-          name,
-          photoURL,
-          updatedAt: new Date(),
-        },
-      })
-      res.send(result);
+
+      const result = await UsersCollection.updateOne(
+        { email },
+        {
+          $set: {
+            name,
+            photoURL,
+            updatedAt: new Date(),
+          },
+        }
+      );
+
+      if (result.modifiedCount > 0) {
+        return res.status(200).send({ message: "Updated" });
+      } else {
+        return res.status(400).send({ message: "Nothing updated" });
+      }
     })
 
     // api method for course collections
