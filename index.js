@@ -137,6 +137,17 @@ async function run() {
       res.send(result);
     });
 
+    app.get("/feedback", async(req, res) => {
+      const result = await feedbackCollection.find().toArray();
+      res.send(result);
+    })
+
+    app.delete("/feedback/:id", async (req, res) => {
+      const id = req.params.id;
+      const result = await feedbackCollection.deleteOne({ _id: new ObjectId(id) });
+      res.send(result);
+    });
+
     // api method for course collections
     app.post("/courses", verfiyFirebaseToken, verifyTokenEmail,  async (req, res) => {
       const newCourse = req.body;
