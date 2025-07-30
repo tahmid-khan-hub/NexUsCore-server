@@ -72,6 +72,9 @@ async function run() {
     const UsersCollection = client
       .db("CourseDB")
       .collection("users")
+    const feedbackCollection = client
+      .db("CourseDB")
+      .collection("feedback")
 
 
     // users
@@ -126,6 +129,13 @@ async function run() {
         return res.status(400).send({ message: "Nothing updated" });
       }
     })
+
+    // api method for feedback
+    app.post("/feedback", async (req, res) => {
+      const feedback = req.body;
+      const result = await feedbackCollection.insertOne(feedback);
+      res.send(result);
+    });
 
     // api method for course collections
     app.post("/courses", verfiyFirebaseToken, verifyTokenEmail,  async (req, res) => {
