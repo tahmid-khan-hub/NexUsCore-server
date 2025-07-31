@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const admin = require("firebase-admin");
 require("dotenv").config();
 const decoded = Buffer.from(process.env.FB_SERVICE_KEY, 'base64').toString('utf8')
@@ -255,6 +256,45 @@ async function run() {
       const result = await UsersEnrolledCourses.deleteOne(query);
       res.send(result);
     });
+
+    app.patch('/userCourses/paid/:email', async (req, res) => {
+      const email = req.params.email;
+      const { courseId, paid } = req.body;
+
+      try {
+        const result = await UsersEnrolledCourses.updateOne(
+          { email: email, courseId: courseId },
+          { $set: { paid: paid } }
+        );
+
+        res.send(result);
+      } catch (error) {
+        res.status(500).send({ error: "Failed to update payment status" });
+      }
+    });
+
+    // payment intent
+    app.post("/create-payment-intent", async (req, res) => {
+      const { email, price } = req.body;
+
+      try {
+        const amountInTaka = Math.round(price);
+
+        const paymentIntent = await stripe.paymentIntents.create({
+          amount: amountInTaka,
+          currency: "bdt",
+          metadata: { email },
+        });
+
+        res.send({
+          clientSecret: paymentIntent.client_secret,
+        });
+      } catch (error) {
+        console.error("Payment error:", error);
+        res.status(500).json({ error: "Payment initiation failed" });
+      }
+    });
+
 
     await client.db("admin").command({ ping: 1 });
     console.log(
