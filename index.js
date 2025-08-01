@@ -257,31 +257,17 @@ async function run() {
       res.send(result);
     });
 
-    app.patch('/userCourses/paid/:email', async (req, res) => {
-      const email = req.params.email;
-      const { courseId, paid } = req.body;
-
-      try {
-        const result = await UsersEnrolledCourses.updateOne(
-          { email: email, courseId: courseId },
-          { $set: { paid: paid } }
-        );
-
-        res.send(result);
-      } catch (error) {
-        res.status(500).send({ error: "Failed to update payment status" });
-      }
-    });
 
     // payment intent
     app.post("/create-payment-intent", async (req, res) => {
       const { email, price } = req.body;
 
       try {
-        const amountInTaka = Math.round(price);
+        // Convert Taka to poisha
+        const amountInPoisha = Math.round(price * 100);
 
         const paymentIntent = await stripe.paymentIntents.create({
-          amount: amountInTaka,
+          amount: amountInPoisha,
           currency: "bdt",
           metadata: { email },
         });
