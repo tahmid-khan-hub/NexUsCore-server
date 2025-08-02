@@ -208,17 +208,45 @@ async function run() {
     });
 
     // enrollment add and remove
-    app.patch("/courses/:id", async (req, res) => {
-      const id = req.params.id;
-      const { enrolled } = req.body;
+    // app.patch("/courses/:id", async (req, res) => {
+    //   const id = req.params.id;
+    //   const { enrolled } = req.body;
 
-      const filter = { _id: new ObjectId(id) };
-      const updateDoc = {
-        $set: { enrolled },
-      };
+    //   const filter = { _id: new ObjectId(id) };
+    //   const updateDoc = {
+    //     $set: { enrolled },
+    //   };
 
-      const result = await CoursesCollection.updateOne(filter, updateDoc);
-      res.send(result);
+    //   const result = await CoursesCollection.updateOne(filter, updateDoc);
+    //   res.send(result);
+    // });
+
+    app.patch("/courses/enroll/:id", async (req, res) => {
+      try {
+        const { id } = req.params;
+        console.log("Incoming courseId:", id);
+
+        const objectId = new ObjectId(id);
+        console.log("Converted ObjectId:", objectId);
+
+        const found = await CoursesCollection.findOne({ _id: objectId });
+        console.log("Found course in DB:", found);
+
+        if (!found) {
+          return res.status(404).json({ error: "Course not found" });
+        }
+
+        const result = await CoursesCollection.updateOne(
+          { _id: objectId },
+          { $inc: { enrolled: 1 } }
+        );
+
+        console.log("Update result:", result);
+        res.send(result);
+      } catch (error) {
+        console.error("Error updating course enrollment:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+      }
     });
 
     app.patch("/courses/:id/unenroll", verfiyFirebaseToken, verifyTokenEmail, async (req, res) => {
