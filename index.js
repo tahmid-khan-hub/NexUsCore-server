@@ -13,7 +13,7 @@ const port = 3000;
 // middleware
 app.use(
   cors({
-    origin: ["https://dancing-paprenjak-69a983.netlify.app", "http://localhost:5173", "https://nexuscore-dev.netlify.app"],
+    origin: ["https://dancing-paprenjak-69a983.netlify.app", "http://localhost:5173", "https://nexuscore-dev.netlify.app", "https://nexuscore-app.netlify.app"],
     credentials: true,
   })
 );
