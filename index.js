@@ -13,7 +13,7 @@ const port = 3000;
 // middleware
 app.use(
   cors({
-    origin: ["https://dancing-paprenjak-69a983.netlify.app", "http://localhost:5173", "https://nexuscore-dev.netlify.app", "https://nexuscore-app.netlify.app"],
+    origin: ["https://dancing-paprenjak-69a983.netlify.app", "http://localhost:5173", "https://nexuscore-dev.netlify.app", "https://nexuscore-app.netlify.app", "https://nexus-core-lyart.vercel.app"],
     credentials: true,
   })
 );
@@ -91,12 +91,6 @@ async function run() {
         res.status(500).json({ message: "Server error", error: err });
       }
     });
-
-    // show all users list
-    app.get("/users", async (req, res) => {
-      const result = UsersCollection.find().toArray();
-      res.send(result);
-    })
 
     app.get("/users/:email", async (req, res) => {
       const email = req.params.email;
